@@ -14,16 +14,20 @@
     :root {
       --bg: #090d0b;
       --surface: #101714;
-      --surface-done: #12241b;
+      --surface-elevated: #151f1b;
+      --surface-done: #112219;
       --border: #1e2b24;
+      --border-strong: #2c3f35;
       --border-done: #2d5a43;
       --orange: #f97316;
-      --green-text: #86efac;
+      --orange-dim: rgba(249, 115, 22, 0.14);
+      --green: #4ade80;
+      --green-muted: #86efac;
       --text: #e8efe9;
       --muted: #6e8277;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
-      --radius: 10px;
+      --radius: 8px;
     }
 
     * {
@@ -38,21 +42,44 @@
       background-color: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 24px 16px 56px;
       display: flex;
       justify-content: center;
+      font-variant-numeric: tabular-nums;
       -webkit-font-smoothing: antialiased;
+    }
+
+    /* Barra de progreso ultrafina superior */
+    .progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--border);
+      z-index: 50;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--orange);
+      transition: width 0.25s ease, background-color 0.25s ease;
+    }
+
+    .progress-fill.complete {
+      background: var(--green);
     }
 
     .app {
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
+      padding: 24px 16px 64px;
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
 
-    /* Header */
+    /* Cabecera */
     header {
       display: flex;
       justify-content: space-between;
@@ -70,49 +97,64 @@
     .brand-logo {
       width: 34px;
       height: 34px;
-      border-radius: 6px;
+      border-radius: 4px;
       border: 1px solid var(--border);
       flex-shrink: 0;
     }
 
     .brand-text h1 {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       line-height: 1.1;
     }
 
     .brand-text p {
       font-family: var(--mono);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--muted);
-      margin-top: 3px;
-      letter-spacing: 0.02em;
+      margin-top: 4px;
+      letter-spacing: 0.04em;
     }
 
     .header-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .btn-ghost {
+    /* Botones base */
+    .btn {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 7px 11px;
-      border-radius: 6px;
+      padding: 6px 10px;
+      border-radius: 4px;
       font-family: var(--mono);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
+      transition: border-color 0.15s, color 0.15s, background-color 0.15s;
     }
 
-    .btn-ghost:hover {
+    .btn:hover {
       border-color: var(--text);
       color: var(--text);
+    }
+
+    .btn-accent {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #090d0b;
+      font-weight: 700;
+    }
+
+    .btn-accent:hover {
+      background: #ea580c;
+      border-color: #ea580c;
+      color: #090d0b;
     }
 
     .btn-install {
@@ -121,7 +163,51 @@
       color: var(--orange);
     }
 
-    /* Grid */
+    /* Pestañas de Perfiles / Escenarios */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 7px 12px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab.active {
+      background: var(--surface-elevated);
+      border-color: var(--orange);
+      color: var(--text);
+    }
+
+    .tab-count {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .tab.active .tab-count {
+      color: var(--orange);
+    }
+
+    /* Grid de Tarjetas */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -132,19 +218,28 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 16px 14px;
-      min-height: 112px;
+      padding: 14px;
+      min-height: 122px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       cursor: pointer;
       position: relative;
-      transition: transform 0.1s ease, border-color 0.15s ease, background-color 0.15s ease;
+      transition: transform 0.08s ease, border-color 0.15s ease, background-color 0.15s ease;
       user-select: none;
     }
 
+    .card:hover {
+      border-color: var(--border-strong);
+    }
+
     .card:active {
-      transform: scale(0.98);
+      transform: scale(0.985);
+    }
+
+    .card:focus-visible {
+      outline: 1px solid var(--orange);
+      outline-offset: 2px;
     }
 
     .card.done {
@@ -156,19 +251,35 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
+    }
+
+    .card-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .kbd-hint {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 1px 4px;
+      border-radius: 3px;
     }
 
     .status-label {
       font-family: var(--mono);
-      font-size: 0.65rem;
-      font-weight: 600;
+      font-size: 0.64rem;
+      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--orange);
     }
 
     .card.done .status-label {
-      color: var(--green-text);
+      color: var(--green-muted);
     }
 
     .delete-btn {
@@ -176,11 +287,10 @@
       border: none;
       color: var(--muted);
       font-family: var(--mono);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       opacity: 0.35;
       cursor: pointer;
       padding: 2px 4px;
-      line-height: 1;
     }
 
     .delete-btn:hover {
@@ -189,30 +299,45 @@
     }
 
     .card-title {
-      font-size: 0.98rem;
+      font-size: 0.96rem;
       font-weight: 600;
       letter-spacing: -0.01em;
-      margin-top: 14px;
+      margin-top: 12px;
       line-height: 1.25;
+    }
+
+    .card-footer {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 4px;
     }
 
     .card-meta {
       font-family: var(--mono);
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: var(--muted);
-      margin-top: 6px;
     }
 
     .card.done .card-meta {
       color: #a3cbb2;
     }
 
-    /* Sections */
+    .card-tag {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Secciones */
     .section {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding-top: 16px;
+      gap: 12px;
+      padding-top: 18px;
       border-top: 1px solid var(--border);
     }
 
@@ -225,26 +350,27 @@
     .section h2 {
       font-family: var(--mono);
       font-size: 0.72rem;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--muted);
     }
 
-    /* Forms */
+    /* Formularios e Inputs */
     .row {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     input, select {
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 6px;
-      padding: 10px 12px;
+      border-radius: 4px;
+      padding: 9px 10px;
       font-family: var(--sans);
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       outline: none;
       transition: border-color 0.15s;
     }
@@ -253,64 +379,69 @@
       border-color: var(--orange);
     }
 
-    #nameInput, #reminderTarget {
+    .grow {
       flex: 1;
-      min-width: 0;
+      min-width: 130px;
     }
 
-    #reminderTime {
-      width: 108px;
+    .time-input {
+      width: 102px;
       font-family: var(--mono);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
     }
 
-    .btn-primary {
-      background: var(--orange);
-      color: #090d0b;
-      border: none;
-      border-radius: 6px;
-      padding: 0 16px;
+    /* Selector de días de la semana */
+    .days-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .day-pills {
+      display: flex;
+      gap: 4px;
+    }
+
+    .day-btn {
+      width: 30px;
+      height: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 4px;
       font-family: var(--mono);
-      font-size: 0.76rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-size: 0.68rem;
+      font-weight: 600;
       cursor: pointer;
     }
 
-    .btn-primary:hover {
-      opacity: 0.9;
+    .day-btn.selected {
+      background: var(--orange-dim);
+      border-color: var(--orange);
+      color: var(--orange);
     }
 
     .quick-pills {
       display: flex;
       gap: 6px;
+      align-items: center;
     }
 
-    .pill {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 4px;
-      padding: 5px 10px;
+    .quick-label {
       font-family: var(--mono);
-      font-size: 0.72rem;
-      cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
+      font-size: 0.66rem;
+      color: var(--muted);
+      text-transform: uppercase;
     }
 
-    .pill:hover {
-      border-color: var(--orange);
-      color: var(--text);
-    }
-
-    /* Lists */
+    /* Listas */
     .list {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      max-height: 170px;
+      gap: 6px;
+      max-height: 190px;
       overflow-y: auto;
     }
 
@@ -318,139 +449,255 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.84rem;
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(30, 43, 36, 0.55);
+      gap: 8px;
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
     }
 
-    .list-item:last-child {
-      border-bottom: none;
+    .item-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .item-sub {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--muted);
     }
 
     .accent-time {
       font-family: var(--mono);
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       color: var(--orange);
       font-weight: 600;
+      white-space: nowrap;
     }
 
     .empty-msg {
       font-family: var(--mono);
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: var(--muted);
-    }
-
-    .notif-badge {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 4px 8px;
-      border-radius: 4px;
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      cursor: pointer;
+      padding: 4px 0;
     }
 
     .notif-badge.active {
       border-color: var(--border-done);
-      color: var(--green-text);
+      color: var(--green-muted);
+    }
+
+    @media (max-width: 380px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressBar"></div>
+  </div>
+
   <main class="app">
     <header>
       <div class="brand">
         <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true">
           <rect width="512" height="512" fill="#090d0b"/>
-          <path d="M 344 168 A 124 124 0 1 0 344 344" fill="none" stroke="#e8efe9" stroke-width="54" stroke-linecap="square"/>
-          <rect x="244" y="229" width="144" height="54" fill="#f97316"/>
+          <path d="M 348 164 A 128 128 0 1 0 348 348" fill="none" stroke="#e8efe9" stroke-width="52" stroke-linecap="square"/>
+          <rect x="240" y="230" width="152" height="52" fill="#f97316"/>
         </svg>
         <div class="brand-text">
           <h1>CERRÉ</h1>
-          <p id="summaryText">0 / 4 CONFIRMADOS</p>
+          <p id="summaryText">0 / 0 CONFIRMADOS</p>
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn-ghost btn-install" id="installBtn">Instalar</button>
-        <button class="btn-ghost" id="resetBtn">Reset</button>
+        <button class="btn btn-install" id="installBtn">Instalar</button>
+        <button class="btn" id="resetBtn" title="Reiniciar controles visibles">Reset</button>
       </div>
     </header>
 
+    <!-- Escenarios / Perfiles -->
+    <nav class="tabs" id="profileTabs" aria-label="Escenarios"></nav>
+
+    <!-- Grid Principal -->
     <section class="grid" id="grid"></section>
 
-    <form class="row" id="addForm">
-      <input type="text" id="nameInput" placeholder="Nuevo control (ej. Ventanas, Gas...)" required />
-      <button type="submit" class="btn-primary">Añadir</button>
-    </form>
-
+    <!-- Añadir Control -->
     <section class="section">
       <div class="section-header">
-        <h2>Recordatorios</h2>
-        <button class="notif-badge" id="notifStatusBtn">Avisos: OFF</button>
+        <h2>Nuevo Control</h2>
       </div>
-
-      <form class="row" id="reminderForm">
-        <select id="reminderTarget" aria-label="Elemento a recordar"></select>
-        <input type="time" id="reminderTime" required aria-label="Hora del aviso" />
-        <button type="submit" class="btn-primary">Fijar</button>
+      <form class="row" id="addForm">
+        <input type="text" id="nameInput" class="grow" placeholder="Ej. Cerrar llave de paso" required />
+        <select id="profileSelect" aria-label="Escenario">
+          <option value="salir">Salir</option>
+          <option value="noche">Noche</option>
+          <option value="viaje">Viaje</option>
+        </select>
+        <select id="autoResetSelect" aria-label="Auto-reinicio" title="Reinicio automático">
+          <option value="manual">Manual</option>
+          <option value="daily_4am">04:00 AM</option>
+          <option value="6h">Cada 6h</option>
+          <option value="12h">Cada 12h</option>
+        </select>
+        <button type="submit" class="btn btn-accent">Crear</button>
       </form>
-
-      <div class="quick-pills">
-        <button type="button" class="pill" data-mins="5">+5m</button>
-        <button type="button" class="pill" data-mins="15">+15m</button>
-        <button type="button" class="pill" data-mins="30">+30m</button>
-        <button type="button" class="pill" data-mins="60">+1h</button>
-      </div>
-
-      <ul class="list" id="reminderList"></ul>
     </section>
 
+    <!-- Motor de Horarios y Notificaciones -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Horarios y Avisos</h2>
+        <button class="btn notif-badge" id="notifStatusBtn">Avisos: OFF</button>
+      </div>
+
+      <form class="row" id="scheduleForm">
+        <select id="scheduleTarget" class="grow" aria-label="Control a vigilar"></select>
+        <input type="time" id="scheduleTime" class="time-input" required aria-label="Hora" />
+        <button type="submit" class="btn btn-accent">Fijar</button>
+      </form>
+
+      <div class="days-row">
+        <div class="day-pills" id="daySelector" role="group" aria-label="Días recurrentes">
+          <button type="button" class="day-btn" data-day="1">L</button>
+          <button type="button" class="day-btn" data-day="2">M</button>
+          <button type="button" class="day-btn" data-day="3">X</button>
+          <button type="button" class="day-btn" data-day="4">J</button>
+          <button type="button" class="day-btn" data-day="5">V</button>
+          <button type="button" class="day-btn" data-day="6">S</button>
+          <button type="button" class="day-btn" data-day="0">D</button>
+        </div>
+        <span class="quick-label" id="scheduleModeLabel">Puntual (1 vez)</span>
+      </div>
+
+      <div class="quick-pills">
+        <span class="quick-label">Rápido:</span>
+        <button type="button" class="btn quick-btn" data-mins="10">+10m</button>
+        <button type="button" class="btn quick-btn" data-mins="30">+30m</button>
+        <button type="button" class="btn quick-btn" data-mins="60">+1h</button>
+      </div>
+
+      <ul class="list" id="scheduleList"></ul>
+    </section>
+
+    <!-- Historial y Auditoría -->
     <section class="section">
       <div class="section-header">
         <h2>Registro</h2>
-        <button class="btn-ghost" id="clearHistoryBtn" style="padding: 3px 8px; font-size: 0.68rem;">Limpiar</button>
+        <div style="display:flex;gap:6px;">
+          <button class="btn" id="exportCsvBtn">CSV</button>
+          <button class="btn" id="clearHistoryBtn">Limpiar</button>
+        </div>
       </div>
       <ul class="list" id="historyList"></ul>
     </section>
   </main>
 
   <script>
-    const STORAGE_KEY = "cerre_app_items_v3";
-    const HISTORY_KEY = "cerre_app_history_v3";
-    const REMINDERS_KEY = "cerre_app_reminders_v3";
+    const KEYS = {
+      ITEMS: "cerre_pro_items_v1",
+      HISTORY: "cerre_pro_history_v1",
+      SCHEDULES: "cerre_pro_schedules_v1",
+      PROFILE: "cerre_pro_active_profile_v1"
+    };
 
-    const DEFAULT_ITEMS = [
-      { id: "casa", name: "Puerta de casa", checkedAt: null },
-      { id: "coche", name: "Puerta del coche", checkedAt: null },
-      { id: "basura", name: "Basura sacada", checkedAt: null },
-      { id: "fuegos", name: "Vitro / Gas", checkedAt: null }
+    const PROFILES = [
+      { id: "all", label: "Todos" },
+      { id: "salir", label: "Salir" },
+      { id: "noche", label: "Noche" },
+      { id: "viaje", label: "Viaje" }
     ];
 
-    let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_ITEMS;
-    let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-    let reminders = JSON.parse(localStorage.getItem(REMINDERS_KEY)) || [];
+    const RESET_LABELS = {
+      manual: "Manual",
+      daily_4am: "04:00 AM",
+      "6h": "6h",
+      "12h": "12h"
+    };
+
+    const DAY_NAMES = ["D", "L", "M", "X", "J", "V", "S"];
+
+    const DEFAULT_ITEMS = [
+      { id: "casa", name: "Puerta de casa", profile: "salir", autoReset: "daily_4am", checkedAt: null },
+      { id: "coche", name: "Puerta del coche", profile: "salir", autoReset: "12h", checkedAt: null },
+      { id: "basura", name: "Basura sacada", profile: "noche", autoReset: "daily_4am", checkedAt: null },
+      { id: "fuegos", name: "Vitro / Gas", profile: "noche", autoReset: "daily_4am", checkedAt: null },
+      { id: "ventanas", name: "Ventanas cerradas", profile: "viaje", autoReset: "manual", checkedAt: null },
+      { id: "termo", name: "Termo / Calefacción", profile: "viaje", autoReset: "manual", checkedAt: null }
+    ];
+
+    let items = JSON.parse(localStorage.getItem(KEYS.ITEMS)) || DEFAULT_ITEMS;
+    let history = JSON.parse(localStorage.getItem(KEYS.HISTORY)) || [];
+    let schedules = JSON.parse(localStorage.getItem(KEYS.SCHEDULES)) || [];
+    let activeProfile = localStorage.getItem(KEYS.PROFILE) || "all";
+    let selectedDays = new Set();
     let swReg = null;
     let deferredPrompt = null;
 
+    // --- DOM Refs ---
     const grid = document.getElementById("grid");
-    const historyList = document.getElementById("historyList");
-    const reminderList = document.getElementById("reminderList");
-    const reminderTarget = document.getElementById("reminderTarget");
-    const reminderTime = document.getElementById("reminderTime");
+    const profileTabs = document.getElementById("profileTabs");
     const summaryText = document.getElementById("summaryText");
+    const progressBar = document.getElementById("progressBar");
+    const scheduleTarget = document.getElementById("scheduleTarget");
+    const scheduleTime = document.getElementById("scheduleTime");
+    const scheduleList = document.getElementById("scheduleList");
+    const scheduleModeLabel = document.getElementById("scheduleModeLabel");
+    const historyList = document.getElementById("historyList");
     const notifStatusBtn = document.getElementById("notifStatusBtn");
     const installBtn = document.getElementById("installBtn");
 
-    // --- PWA ---
+    // --- Inicialización URL (Shortcuts y acciones desde notificación) ---
+    function handleUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const profileParam = params.get("profile");
+      if (profileParam && PROFILES.some((p) => p.id === profileParam)) {
+        activeProfile = profileParam;
+      }
+
+      const action = params.get("notif_action");
+      const itemId = params.get("item_id");
+      if (action && itemId) {
+        processNotificationAction(action, itemId);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    function processNotificationAction(action, itemId) {
+      if (action === "confirm") {
+        if (itemId === "ALL") {
+          items.forEach((it) => {
+            if (!it.checkedAt) markItemDone(it);
+          });
+        } else {
+          const item = items.find((i) => i.id === itemId);
+          if (item && !item.checkedAt) markItemDone(item);
+        }
+        save();
+        render();
+      } else if (action === "snooze") {
+        addOneOffSchedule(itemId, Date.now() + 10 * 60 * 1000);
+      }
+    }
+
+    // --- PWA & Service Worker ---
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", async () => {
         try {
           swReg = await navigator.serviceWorker.register("./sw.js");
         } catch (err) {
-          console.error("Error registrando SW:", err);
+          console.error("SW error:", err);
+        }
+      });
+
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data && event.data.type === "NOTIFICATION_ACTION") {
+          processNotificationAction(event.data.action, event.data.itemId);
         }
       });
     }
@@ -469,7 +716,40 @@
       installBtn.style.display = "none";
     });
 
-    // --- Notificaciones ---
+    // --- Lógica de Auto-Reset ---
+    function evaluateAutoResets() {
+      const now = Date.now();
+      let changed = false;
+
+      items.forEach((item) => {
+        if (!item.checkedAt || item.autoReset === "manual") return;
+
+        if (item.autoReset === "6h" && now - item.checkedAt >= 6 * 3600 * 1000) {
+          item.checkedAt = null;
+          changed = true;
+        } else if (item.autoReset === "12h" && now - item.checkedAt >= 12 * 3600 * 1000) {
+          item.checkedAt = null;
+          changed = true;
+        } else if (item.autoReset === "daily_4am") {
+          const last4am = new Date();
+          last4am.setHours(4, 0, 0, 0);
+          if (last4am.getTime() > now) {
+            last4am.setDate(last4am.getDate() - 1);
+          }
+          if (item.checkedAt < last4am.getTime()) {
+            item.checkedAt = null;
+            changed = true;
+          }
+        }
+      });
+
+      if (changed) {
+        save();
+        render();
+      }
+    }
+
+    // --- Notificaciones y Motor de Horarios ---
     function updateNotifUI() {
       if (!("Notification" in window)) {
         notifStatusBtn.textContent = "NO SOPORTADO";
@@ -490,68 +770,162 @@
     async function ensureNotificationPermission() {
       if (!("Notification" in window)) return false;
       if (Notification.permission === "granted") return true;
-      const result = await Notification.requestPermission();
+      const res = await Notification.requestPermission();
       updateNotifUI();
-      return result === "granted";
+      return res === "granted";
     }
 
     notifStatusBtn.addEventListener("click", ensureNotificationPermission);
 
-    async function sendNotification(title, body) {
+    async function dispatchSystemNotification(title, body, itemId, triggerTimestamp = null) {
       if (Notification.permission !== "granted") return;
+
       const options = {
         body,
         icon: "./icon.svg",
         badge: "./icon.svg",
-        vibrate: [120, 60, 120],
-        tag: "cerre-reminder"
+        tag: `cerre-${itemId}`,
+        renotify: true,
+        vibrate: [100, 50, 100],
+        data: { itemId },
+        actions: [
+          { action: "confirm", title: "Confirmar ahora" },
+          { action: "snooze", title: "Posponer 10m" }
+        ]
       };
+
+      // Soporte experimental Notification Triggers (Chrome Android)
+      if (triggerTimestamp && "showTrigger" in Notification.prototype && "TimestampTrigger" in window) {
+        options.showTrigger = new TimestampTrigger(triggerTimestamp);
+      }
+
       if (swReg && swReg.showNotification) {
-        swReg.showNotification(title, options);
-      } else {
+        await swReg.showNotification(title, options);
+      } else if (!triggerTimestamp) {
         new Notification(title, options);
       }
     }
 
-    function checkReminders() {
-      const now = Date.now();
+    function checkSchedules() {
+      const now = new Date();
+      const nowMs = now.getTime();
+      const currentDay = now.getDay(); // 0-6
+      const currentHHMM = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      const todayKey = now.toISOString().slice(0, 10);
+
       let changed = false;
 
-      reminders = reminders.filter((rem) => {
-        if (rem.triggerAt <= now) {
-          changed = true;
-          if (rem.targetId === "ALL") {
-            const pending = items.filter((i) => !i.checkedAt);
-            if (pending.length > 0) {
-              const names = pending.map((p) => p.name).join(", ");
-              sendNotification("CERRÉ — Pendientes", `Sin confirmar: ${names}`);
-            }
-          } else {
-            const target = items.find((i) => i.id === rem.targetId);
-            if (target && !target.checkedAt) {
-              sendNotification("CERRÉ — Recordatorio", `Comprueba: ${target.name}`);
-            }
+      schedules = schedules.filter((sch) => {
+        // Caso 1: Recordatorio puntual
+        if (sch.type === "once") {
+          if (sch.triggerAt <= nowMs) {
+            changed = true;
+            triggerAlertIfPending(sch.targetId);
+            return false;
           }
-          return false;
+          return true;
+        }
+
+        // Caso 2: Rutina semanal recurrente
+        if (sch.type === "recurring") {
+          if (
+            sch.days.includes(currentDay) &&
+            sch.time === currentHHMM &&
+            sch.lastFiredDate !== todayKey
+          ) {
+            sch.lastFiredDate = todayKey;
+            changed = true;
+            triggerAlertIfPending(sch.targetId);
+          }
+          return true;
         }
         return true;
       });
 
       if (changed) {
         save();
-        renderReminders();
+        renderSchedules();
       }
     }
 
-    // --- Persistencia y formato ---
+    function triggerAlertIfPending(targetId) {
+      if (targetId === "ALL") {
+        const pending = items.filter((i) => !i.checkedAt);
+        if (pending.length > 0) {
+          const names = pending.map((p) => p.name).join(" · ");
+          dispatchSystemNotification("CERRÉ — Verificación pendiente", names, "ALL");
+        }
+      } else {
+        const target = items.find((i) => i.id === targetId);
+        if (target && !target.checkedAt) {
+          dispatchSystemNotification("CERRÉ — Recordatorio", `Pendiente: ${target.name}`, target.id);
+        }
+      }
+    }
+
+    async function addOneOffSchedule(targetId, triggerAt) {
+      const ok = await ensureNotificationPermission();
+      if (!ok) {
+        alert("Activa los permisos de notificación en la cabecera de la sección.");
+        return;
+      }
+
+      const sch = {
+        id: String(Date.now() + Math.random()),
+        type: "once",
+        targetId,
+        triggerAt
+      };
+      schedules.push(sch);
+      save();
+      renderSchedules();
+
+      // Si el navegador soporta TimestampTrigger, lo registramos a nivel de sistema
+      if ("showTrigger" in Notification.prototype && "TimestampTrigger" in window) {
+        const label = getTargetName(targetId);
+        dispatchSystemNotification("CERRÉ — Recordatorio", `Comprobar: ${label}`, targetId, triggerAt);
+      }
+    }
+
+    async function addRecurringSchedule(targetId, timeStr, daysArr) {
+      const ok = await ensureNotificationPermission();
+      if (!ok) {
+        alert("Activa los permisos de notificación para programar rutinas.");
+        return;
+      }
+
+      schedules.push({
+        id: String(Date.now() + Math.random()),
+        type: "recurring",
+        targetId,
+        time: timeStr,
+        days: daysArr.sort((a, b) => a - b),
+        lastFiredDate: null
+      });
+      save();
+      renderSchedules();
+    }
+
+    // --- Persistencia y Helpers ---
     function save() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-      localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
+      localStorage.setItem(KEYS.ITEMS, JSON.stringify(items));
+      localStorage.setItem(KEYS.HISTORY, JSON.stringify(history));
+      localStorage.setItem(KEYS.SCHEDULES, JSON.stringify(schedules));
+      localStorage.setItem(KEYS.PROFILE, activeProfile);
+    }
+
+    function getTargetName(targetId) {
+      if (targetId === "ALL") return "Todo lo pendiente";
+      const found = items.find((i) => i.id === targetId);
+      return found ? found.name : "Control eliminado";
     }
 
     function formatClock(ts) {
       return new Date(ts).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function formatDateShort(ts) {
+      return new Date(ts).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit" });
     }
 
     function formatRelative(ts) {
@@ -563,19 +937,27 @@
       return diffHr < 24 ? `hace ${diffHr}h` : `hace ${Math.floor(diffHr / 24)}d`;
     }
 
-    // --- Acciones ---
+    // --- Acciones sobre Tarjetas ---
+    function markItemDone(item) {
+      const now = Date.now();
+      item.checkedAt = now;
+      history.unshift({
+        text: item.name,
+        profile: item.profile,
+        time: now
+      });
+      if (history.length > 50) history.pop();
+    }
+
     function toggleItem(id) {
       const item = items.find((i) => i.id === id);
       if (!item) return;
-      if (navigator.vibrate) navigator.vibrate(20);
+      if (navigator.vibrate) navigator.vibrate(18);
 
       if (item.checkedAt) {
         item.checkedAt = null;
       } else {
-        const now = Date.now();
-        item.checkedAt = now;
-        history.unshift({ text: item.name, time: now });
-        if (history.length > 20) history.pop();
+        markItemDone(item);
       }
       save();
       render();
@@ -584,176 +966,318 @@
     function deleteItem(e, id) {
       e.stopPropagation();
       items = items.filter((i) => i.id !== id);
-      reminders = reminders.filter((r) => r.targetId !== id);
+      schedules = schedules.filter((s) => s.targetId !== id);
       save();
       render();
     }
 
-    async function scheduleReminder(targetId, triggerAt) {
-      const ok = await ensureNotificationPermission();
-      if (!ok) {
-        alert("Activa los permisos de notificación para programar recordatorios.");
-        return;
-      }
-      const label =
-        targetId === "ALL"
-          ? "Todo lo pendiente"
-          : (() => {
-              const it = items.find((i) => i.id === targetId);
-              return it ? it.name : "Recordatorio";
-            })();
-
-      reminders.push({
-        id: String(Date.now() + Math.random()),
-        targetId,
-        label,
-        triggerAt
-      });
-      reminders.sort((a, b) => a.triggerAt - b.triggerAt);
-      save();
-      renderReminders();
+    function getVisibleItems() {
+      if (activeProfile === "all") return items;
+      return items.filter((i) => i.profile === activeProfile);
     }
 
-    // --- Render ---
-    function renderReminders() {
-      reminderList.innerHTML = "";
-      if (reminders.length === 0) {
-        reminderList.innerHTML = `<li class="empty-msg">Sin avisos activos.</li>`;
+    // --- Renderizado ---
+    function renderTabs() {
+      profileTabs.innerHTML = "";
+      PROFILES.forEach((prof) => {
+        const subset = prof.id === "all" ? items : items.filter((i) => i.profile === prof.id);
+        const done = subset.filter((i) => i.checkedAt).length;
+
+        const btn = document.createElement("button");
+        btn.className = `tab ${activeProfile === prof.id ? "active" : ""}`;
+        btn.innerHTML = `
+          <span>${prof.label}</span>
+          <span class="tab-count">${done}/${subset.length}</span>
+        `;
+        btn.onclick = () => {
+          activeProfile = prof.id;
+          if (prof.id !== "all") {
+            document.getElementById("profileSelect").value = prof.id;
+          }
+          save();
+          render();
+        };
+        profileTabs.appendChild(btn);
+      });
+    }
+
+    function renderSchedules() {
+      scheduleList.innerHTML = "";
+      if (schedules.length === 0) {
+        scheduleList.innerHTML = `<li class="empty-msg">Sin horarios programados.</li>`;
         return;
       }
-      reminders.forEach((rem) => {
+
+      schedules.forEach((sch) => {
         const li = document.createElement("li");
         li.className = "list-item";
+
+        const title = getTargetName(sch.targetId);
+        let subtitle = "";
+        let timeBadge = "";
+
+        if (sch.type === "once") {
+          subtitle = `Puntual · ${formatDateShort(sch.triggerAt)}`;
+          timeBadge = formatClock(sch.triggerAt);
+        } else {
+          const orderedDays = [1, 2, 3, 4, 5, 6, 0].filter((d) => sch.days.includes(d));
+          const daysStr = orderedDays.length === 7
+            ? "Todos los días"
+            : orderedDays.map((d) => DAY_NAMES[d]).join(" ");
+          subtitle = `Rutina · ${daysStr}`;
+          timeBadge = sch.time;
+        }
+
         li.innerHTML = `
-          <span>${rem.label}</span>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="accent-time">${formatClock(rem.triggerAt)}</span>
-            <button class="btn-ghost" style="padding:2px 6px;font-size:0.68rem;" aria-label="Borrar">X</button>
+          <div class="item-main">
+            <span>${title}</span>
+            <span class="item-sub">${subtitle}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="accent-time">${timeBadge}</span>
+            <button class="btn" style="padding:2px 6px;font-size:0.65rem;" aria-label="Eliminar">X</button>
           </div>
         `;
+
         li.querySelector("button").onclick = () => {
-          reminders = reminders.filter((r) => r.id !== rem.id);
+          schedules = schedules.filter((s) => s.id !== sch.id);
           save();
-          renderReminders();
+          renderSchedules();
         };
-        reminderList.appendChild(li);
+        scheduleList.appendChild(li);
       });
     }
 
     function render() {
-      const doneCount = items.filter((i) => i.checkedAt).length;
-      summaryText.textContent =
-        doneCount === items.length && items.length > 0
-          ? "TODO CONFIRMADO"
-          : `${doneCount} / ${items.length} CONFIRMADOS`;
+      renderTabs();
 
+      const visible = getVisibleItems();
+      const doneCount = visible.filter((i) => i.checkedAt).length;
+      const total = visible.length;
+      const pct = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+
+      progressBar.style.width = `${pct}%`;
+      progressBar.classList.toggle("complete", total > 0 && doneCount === total);
+
+      summaryText.textContent =
+        total > 0 && doneCount === total
+          ? "TODO VERIFICADO"
+          : `${doneCount} / ${total} CONFIRMADOS`;
+
+      // Grid de tarjetas
       grid.innerHTML = "";
-      items.forEach((item) => {
+      visible.forEach((item, index) => {
         const card = document.createElement("div");
         card.className = `card ${item.checkedAt ? "done" : ""}`;
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-pressed", Boolean(item.checkedAt));
         card.onclick = () => toggleItem(item.id);
+        card.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleItem(item.id);
+          }
+        };
 
         const statusText = item.checkedAt ? "OK" : "PENDIENTE";
         const metaText = item.checkedAt
           ? `${formatClock(item.checkedAt)} · ${formatRelative(item.checkedAt)}`
           : "Sin confirmar";
+        const kbdHtml = index < 9 ? `<span class="kbd-hint">${index + 1}</span>` : "";
 
         card.innerHTML = `
           <div class="card-top">
-            <span class="status-label">${statusText}</span>
+            <div class="card-badges">
+              ${kbdHtml}
+              <span class="status-label">${statusText}</span>
+            </div>
             <button class="delete-btn" title="Eliminar" aria-label="Eliminar">X</button>
           </div>
-          <div>
-            <div class="card-title">${item.name}</div>
-            <div class="card-meta">${metaText}</div>
+          <div class="card-title">${item.name}</div>
+          <div class="card-footer">
+            <span class="card-meta">${metaText}</span>
+            <span class="card-tag">${item.profile} · ${RESET_LABELS[item.autoReset] || "Manual"}</span>
           </div>
         `;
+
         card.querySelector(".delete-btn").onclick = (e) => deleteItem(e, item.id);
         grid.appendChild(card);
       });
 
-      const currentVal = reminderTarget.value;
-      reminderTarget.innerHTML = `<option value="ALL">Todo lo pendiente</option>`;
+      // Selector de objetivos de aviso
+      const prevTarget = scheduleTarget.value;
+      scheduleTarget.innerHTML = `<option value="ALL">Todo lo pendiente</option>`;
       items.forEach((item) => {
         const opt = document.createElement("option");
         opt.value = item.id;
-        opt.textContent = item.name;
-        reminderTarget.appendChild(opt);
+        opt.textContent = `${item.name} (${item.profile})`;
+        scheduleTarget.appendChild(opt);
       });
-      if ([...reminderTarget.options].some((o) => o.value === currentVal)) {
-        reminderTarget.value = currentVal;
+      if ([...scheduleTarget.options].some((o) => o.value === prevTarget)) {
+        scheduleTarget.value = prevTarget;
       }
 
+      // Historial
       historyList.innerHTML = "";
       if (history.length === 0) {
-        historyList.innerHTML = `<li class="empty-msg">Sin registros.</li>`;
+        historyList.innerHTML = `<li class="empty-msg">Sin registros recientes.</li>`;
       } else {
         history.forEach((entry) => {
           const li = document.createElement("li");
           li.className = "list-item";
           li.innerHTML = `
-            <span>${entry.text}</span>
+            <div class="item-main">
+              <span>${entry.text}</span>
+              <span class="item-sub">${entry.profile ? entry.profile.toUpperCase() : "GENERAL"} · ${formatDateShort(entry.time)}</span>
+            </div>
             <span class="accent-time">${formatClock(entry.time)}</span>
           `;
           historyList.appendChild(li);
         });
       }
 
-      renderReminders();
+      renderSchedules();
     }
 
-    // --- Eventos ---
+    // --- Eventos de Usuario ---
     document.getElementById("addForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const nameInput = document.getElementById("nameInput");
+      const profile = document.getElementById("profileSelect").value;
+      const autoReset = document.getElementById("autoResetSelect").value;
       const name = nameInput.value.trim();
       if (!name) return;
 
       items.push({
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
         name,
+        profile,
+        autoReset,
         checkedAt: null
       });
+
       nameInput.value = "";
       save();
       render();
     });
 
-    document.getElementById("reminderForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!reminderTime.value) return;
-      const [h, m] = reminderTime.value.split(":").map(Number);
-      const target = new Date();
-      target.setHours(h, m, 0, 0);
-      if (target.getTime() <= Date.now()) {
-        target.setDate(target.getDate() + 1);
-      }
-      scheduleReminder(reminderTarget.value, target.getTime());
-    });
-
-    document.querySelectorAll(".pill").forEach((btn) => {
+    // Selección de días recurrentes
+    document.querySelectorAll(".day-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const mins = Number(btn.dataset.mins);
-        scheduleReminder(reminderTarget.value, Date.now() + mins * 60 * 1000);
+        const day = Number(btn.dataset.day);
+        if (selectedDays.has(day)) {
+          selectedDays.delete(day);
+          btn.classList.remove("selected");
+        } else {
+          selectedDays.add(day);
+          btn.classList.add("selected");
+        }
+        scheduleModeLabel.textContent =
+          selectedDays.size > 0
+            ? `Recurrente (${selectedDays.size}d/sem)`
+            : "Puntual (1 vez)";
       });
     });
 
+    // Crear horario puntual o recurrente
+    document.getElementById("scheduleForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!scheduleTime.value) return;
+
+      if (selectedDays.size > 0) {
+        addRecurringSchedule(scheduleTarget.value, scheduleTime.value, [...selectedDays]);
+      } else {
+        const [h, m] = scheduleTime.value.split(":").map(Number);
+        const target = new Date();
+        target.setHours(h, m, 0, 0);
+        if (target.getTime() <= Date.now()) {
+          target.setDate(target.getDate() + 1);
+        }
+        addOneOffSchedule(scheduleTarget.value, target.getTime());
+      }
+    });
+
+    // Botones rápidos (+10m, +30m, +1h)
+    document.querySelectorAll(".quick-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mins = Number(btn.dataset.mins);
+        addOneOffSchedule(scheduleTarget.value, Date.now() + mins * 60 * 1000);
+      });
+    });
+
+    // Reset de controles visibles
     document.getElementById("resetBtn").addEventListener("click", () => {
-      items.forEach((i) => (i.checkedAt = null));
+      const visibleIds = new Set(getVisibleItems().map((i) => i.id));
+      items.forEach((i) => {
+        if (visibleIds.has(i.id)) i.checkedAt = null;
+      });
       save();
       render();
     });
 
+    // Limpiar historial
     document.getElementById("clearHistoryBtn").addEventListener("click", () => {
       history = [];
       save();
       render();
     });
 
-    setInterval(checkReminders, 10000);
-    setInterval(render, 30000);
+    // Exportar historial a CSV
+    document.getElementById("exportCsvBtn").addEventListener("click", () => {
+      if (history.length === 0) return;
+      const rows = [["Fecha", "Hora", "Escenario", "Control"]];
+      history.forEach((h) => {
+        const d = new Date(h.time);
+        rows.push([
+          d.toLocaleDateString("es-ES"),
+          d.toLocaleTimeString("es-ES"),
+          h.profile || "general",
+          `"${h.text.replace(/"/g, '""')}"`
+        ]);
+      });
+      const csvContent = "data:text/csv;charset=utf-8," + rows.map((r) => r.join(",")).join("\n");
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `cerre_registro_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    });
+
+    // Atajos de teclado (1-9 para marcar tarjetas)
+    document.addEventListener("keydown", (e) => {
+      if (["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+      if (e.key >= "1" && e.key <= "9") {
+        const idx = Number(e.key) - 1;
+        const visible = getVisibleItems();
+        if (visible[idx]) {
+          toggleItem(visible[idx].id);
+        }
+      }
+    });
+
+    // Comprobación inmediata al desbloquear pantalla / volver a la app
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        evaluateAutoResets();
+        checkSchedules();
+        render();
+      }
+    });
+
+    // Arranque
+    handleUrlParams();
+    evaluateAutoResets();
     updateNotifUI();
     render();
+
+    setInterval(() => {
+      evaluateAutoResets();
+      checkSchedules();
+    }, 10000);
+
+    setInterval(render, 30000);
   </script>
 </body>
 </html>
