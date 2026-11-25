@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b110e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
+  <title>¿Cerré? — Control rápido</title>
+  <style>
+    :root {
+      --bg: #0b110e;
+      --surface: #131d18;
+      --border: #23362c;
+      --green-dark: #1b4332;
+      --green-accent: #40916c;
+      --orange: #f97316;
+      --orange-soft: rgba(249, 115, 22, 0.14);
+      --text: #ecf3ef;
+      --muted: #8fa399;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px 16px 48px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 2px;
+    }
+
+    .title-group h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .title-group p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    .btn-install {
+      display: none;
+      background: var(--orange-soft);
+      border: 1px solid var(--orange);
+      color: var(--orange);
+    }
+
+    /* Bento Grid */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 132px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.12s ease, border-color 0.2s ease, background 0.2s ease;
+      user-select: none;
+    }
+
+    .card:active {
+      transform: scale(0.97);
+    }
+
+    .card.done {
+      background: linear-gradient(145deg, var(--green-dark), #12291f);
+      border-color: var(--green-accent);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .icon {
+      font-size: 1.7rem;
+      line-height: 1;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
+    }
+
+    .card.done .status-dot {
+      background: #52b788;
+      box-shadow: 0 0 8px rgba(82, 183, 136, 0.6);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 12px;
+      line-height: 1.2;
+    }
+
+    .card-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .card.done .card-meta {
+      color: #b7e4c7;
+    }
+
+    .delete-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      opacity: 0.4;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .delete-btn:hover {
+      opacity: 1;
+      color: var(--orange);
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel h2 {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    /* Forms & Inputs */
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--orange);
+    }
+
+    #emojiInput { width: 52px; text-align: center; }
+    #nameInput { flex: 1; min-width: 0; }
+    #reminderTarget { flex: 1; min-width: 140px; }
+    #reminderTime { width: 112px; }
+
+    .btn-primary {
+      background: var(--orange);
+      color: #0b110e;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .quick-pills {
+      display: flex;
+      gap: 6px;
+    }
+
+    .pill {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.76rem;
+      cursor: pointer;
+    }
+
+    .pill:hover {
+      border-color: var(--orange);
+      color: var(--text);
+    }
+
+    /* Lists */
+    .list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.84rem;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(35, 54, 44, 0.6);
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .accent-time {
+      color: var(--orange);
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .empty-msg {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .notif-badge {
+      font-size: 0.74rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .notif-badge.active {
+      border-color: var(--green-accent);
+      color: #b7e4c7;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="title-group">
+        <h1>¿Cerré?</h1>
+        <p id="summaryText">Toca una tarjeta al hacerlo</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-ghost btn-install" id="installBtn">Instalar</button>
+        <button class="btn-ghost" id="resetBtn">Reiniciar</button>
+      </div>
+    </header>
+
+    <section class="bento-grid" id="grid"></section>
+
+    <form class="panel" id="addForm">
+      <div class="row">
+        <input type="text" id="emojiInput" placeholder="🔑" maxlength="2" aria-label="Emoji" />
+        <input type="text" id="nameInput" placeholder="Añadir (ej. Ventanas, Gas...)" required />
+        <button type="submit" class="btn-primary">+</button>
+      </div>
+    </form>
+
+    <!-- Recordatorios programables -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Recordatorios</h2>
+        <button class="notif-badge" id="notifStatusBtn">Activar avisos</button>
+      </div>
+
+      <form class="row" id="reminderForm">
+        <select id="reminderTarget" aria-label="Elemento a recordar"></select>
+        <input type="time" id="reminderTime" required aria-label="Hora del aviso" />
+        <button type="submit" class="btn-primary">Fijar</button>
+      </form>
+
+      <div class="quick-pills">
+        <button type="button" class="pill" data-mins="5">+5 min</button>
+        <button type="button" class="pill" data-mins="15">+15 min</button>
+        <button type="button" class="pill" data-mins="30">+30 min</button>
+        <button type="button" class="pill" data-mins="60">+1 h</button>
+      </div>
+
+      <ul class="list" id="reminderList"></ul>
+    </section>
+
+    <!-- Historial -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Últimas confirmaciones</h2>
+        <button class="btn-ghost" id="clearHistoryBtn" style="padding: 4px 8px; font-size: 0.72rem;">Limpiar</button>
+      </div>
+      <ul class="list" id="historyList"></ul>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "cerre_app_items_v2";
+    const HISTORY_KEY = "cerre_app_history_v2";
+    const REMINDERS_KEY = "cerre_app_reminders_v2";
+
+    const DEFAULT_ITEMS = [
+      { id: "casa", icon: "🚪", name: "Puerta de casa", checkedAt: null },
+      { id: "coche", icon: "🚗", name: "Puerta del coche", checkedAt: null },
+      { id: "basura", icon: "🗑️", name: "Basura sacada", checkedAt: null },
+      { id: "fuegos", icon: "🔥", name: "Vitro / Gas", checkedAt: null }
+    ];
+
+    let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_ITEMS;
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+    let reminders = JSON.parse(localStorage.getItem(REMINDERS_KEY)) || [];
+    let swReg = null;
+    let deferredPrompt = null;
+
+    const grid = document.getElementById("grid");
+    const historyList = document.getElementById("historyList");
+    const reminderList = document.getElementById("reminderList");
+    const reminderTarget = document.getElementById("reminderTarget");
+    const reminderTime = document.getElementById("reminderTime");
+    const summaryText = document.getElementById("summaryText");
+    const notifStatusBtn = document.getElementById("notifStatusBtn");
+    const installBtn = document.getElementById("installBtn");
+
+    // --- PWA: Service Worker & Instalación ---
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", async () => {
+        try {
+          swReg = await navigator.serviceWorker.register("./sw.js");
+        } catch (err) {
+          console.error("Error registrando SW:", err);
+        }
+      });
+    }
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = "inline-block";
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = "none";
+    });
+
+    // --- Notificaciones ---
+    function updateNotifUI() {
+      if (!("Notification" in window)) {
+        notifStatusBtn.textContent = "No soportado";
+        return;
+      }
+      if (Notification.permission === "granted") {
+        notifStatusBtn.textContent = "🔔 Avisos activos";
+        notifStatusBtn.classList.add("active");
+      } else if (Notification.permission === "denied") {
+        notifStatusBtn.textContent = "🔕 Bloqueados";
+        notifStatusBtn.classList.remove("active");
+      } else {
+        notifStatusBtn.textContent = "Activar avisos";
+        notifStatusBtn.classList.remove("active");
+      }
+    }
+
+    async function ensureNotificationPermission() {
+      if (!("Notification" in window)) return false;
+      if (Notification.permission === "granted") return true;
+      const result = await Notification.requestPermission();
+      updateNotifUI();
+      return result === "granted";
+    }
+
+    notifStatusBtn.addEventListener("click", ensureNotificationPermission);
+
+    async function sendNotification(title, body) {
+      if (Notification.permission !== "granted") return;
+      const options = {
+        body,
+        icon: "./icon.svg",
+        badge: "./icon.svg",
+        vibrate: [120, 60, 120],
+        tag: "cerre-reminder"
+      };
+      if (swReg && swReg.showNotification) {
+        swReg.showNotification(title, options);
+      } else {
+        new Notification(title, options);
+      }
+    }
+
+    function checkReminders() {
+      const now = Date.now();
+      let changed = false;
+
+      reminders = reminders.filter((rem) => {
+        if (rem.triggerAt <= now) {
+          changed = true;
+          if (rem.targetId === "ALL") {
+            const pending = items.filter((i) => !i.checkedAt);
+            if (pending.length > 0) {
+              const names = pending.map((p) => p.name).join(", ");
+              sendNotification("¿Cerré? — Pendientes", `Aún sin confirmar: ${names}`);
+            }
+          } else {
+            const target = items.find((i) => i.id === rem.targetId);
+            if (target && !target.checkedAt) {
+              sendNotification("¿Cerré? — Recordatorio", `Comprueba: ${target.icon} ${target.name}`);
+            }
+          }
+          return false; // Eliminar tras disparar
+        }
+        return true;
+      });
+
+      if (changed) {
+        save();
+        renderReminders();
+      }
+    }
+
+    // --- Persistencia y formato ---
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
+    }
+
+    function formatClock(ts) {
+      return new Date(ts).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function formatRelative(ts) {
+      const diffSec = Math.floor((Date.now() - ts) / 1000);
+      if (diffSec < 60) return "Hace un momento";
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `Hace ${diffMin} min`;
+      const diffHr = Math.floor(diffMin / 60);
+      return diffHr < 24 ? `Hace ${diffHr} h` : `Hace ${Math.floor(diffHr / 24)} d`;
+    }
+
+    // --- Acciones ---
+    function toggleItem(id) {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      if (navigator.vibrate) navigator.vibrate(25);
+
+      if (item.checkedAt) {
+        item.checkedAt = null;
+      } else {
+        const now = Date.now();
+        item.checkedAt = now;
+        history.unshift({ text: `${item.icon} ${item.name}`, time: now });
+        if (history.length > 20) history.pop();
+      }
+      save();
+      render();
+    }
+
+    function deleteItem(e, id) {
+      e.stopPropagation();
+      items = items.filter((i) => i.id !== id);
+      reminders = reminders.filter((r) => r.targetId !== id);
+      save();
+      render();
+    }
+
+    async function scheduleReminder(targetId, triggerAt) {
+      const ok = await ensureNotificationPermission();
+      if (!ok) {
+        alert("Activa los permisos de notificación para programar recordatorios.");
+        return;
+      }
+      const label =
+        targetId === "ALL"
+          ? "📋 Todo lo pendiente"
+          : (() => {
+              const it = items.find((i) => i.id === targetId);
+              return it ? `${it.icon} ${it.name}` : "Recordatorio";
+            })();
+
+      reminders.push({
+        id: String(Date.now() + Math.random()),
+        targetId,
+        label,
+        triggerAt
+      });
+      reminders.sort((a, b) => a.triggerAt - b.triggerAt);
+      save();
+      renderReminders();
+    }
+
+    // --- Render ---
+    function renderReminders() {
+      reminderList.innerHTML = "";
+      if (reminders.length === 0) {
+        reminderList.innerHTML = `<li class="empty-msg">Sin recordatorios programados.</li>`;
+        return;
+      }
+      reminders.forEach((rem) => {
+        const li = document.createElement("li");
+        li.className = "list-item";
+        li.innerHTML = `
+          <span>${rem.label}</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="accent-time">${formatClock(rem.triggerAt)}</span>
+            <button class="btn-ghost" style="padding:2px 6px;font-size:0.72rem;" aria-label="Borrar">✕</button>
+          </div>
+        `;
+        li.querySelector("button").onclick = () => {
+          reminders = reminders.filter((r) => r.id !== rem.id);
+          save();
+          renderReminders();
+        };
+        reminderList.appendChild(li);
+      });
+    }
+
+    function render() {
+      const doneCount = items.filter((i) => i.checkedAt).length;
+      summaryText.textContent =
+        doneCount === items.length && items.length > 0
+          ? "Todo confirmado. Puedes ir tranquilo."
+          : `${doneCount} de ${items.length} confirmados`;
+
+      // Tarjetas
+      grid.innerHTML = "";
+      items.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = `card ${item.checkedAt ? "done" : ""}`;
+        card.onclick = () => toggleItem(item.id);
+
+        const metaText = item.checkedAt
+          ? `${formatClock(item.checkedAt)} · ${formatRelative(item.checkedAt)}`
+          : "Pendiente";
+
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="icon">${item.icon}</span>
+            <span class="status-dot"></span>
+          </div>
+          <div>
+            <div class="card-title">${item.name}</div>
+            <div class="card-meta">${metaText}</div>
+          </div>
+          <button class="delete-btn" title="Eliminar" aria-label="Eliminar">✕</button>
+        `;
+        card.querySelector(".delete-btn").onclick = (e) => deleteItem(e, item.id);
+        grid.appendChild(card);
+      });
+
+      // Selector de recordatorios
+      const currentVal = reminderTarget.value;
+      reminderTarget.innerHTML = `<option value="ALL">📋 Todo lo pendiente</option>`;
+      items.forEach((item) => {
+        const opt = document.createElement("option");
+        opt.value = item.id;
+        opt.textContent = `${item.icon} ${item.name}`;
+        reminderTarget.appendChild(opt);
+      });
+      if ([...reminderTarget.options].some((o) => o.value === currentVal)) {
+        reminderTarget.value = currentVal;
+      }
+
+      // Historial
+      historyList.innerHTML = "";
+      if (history.length === 0) {
+        historyList.innerHTML = `<li class="empty-msg">Sin registros todavía.</li>`;
+      } else {
+        history.forEach((entry) => {
+          const li = document.createElement("li");
+          li.className = "list-item";
+          li.innerHTML = `
+            <span>${entry.text}</span>
+            <span class="accent-time">${formatClock(entry.time)}</span>
+          `;
+          historyList.appendChild(li);
+        });
+      }
+
+      renderReminders();
+    }
+
+    // --- Eventos ---
+    document.getElementById("addForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById("nameInput");
+      const emojiInput = document.getElementById("emojiInput");
+      const name = nameInput.value.trim();
+      if (!name) return;
+
+      items.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        icon: emojiInput.value.trim() || "✅",
+        name,
+        checkedAt: null
+      });
+      nameInput.value = "";
+      emojiInput.value = "";
+      save();
+      render();
+    });
+
+    document.getElementById("reminderForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!reminderTime.value) return;
+      const [h, m] = reminderTime.value.split(":").map(Number);
+      const target = new Date();
+      target.setHours(h, m, 0, 0);
+      if (target.getTime() <= Date.now()) {
+        target.setDate(target.getDate() + 1); // Si ya pasó la hora, programa para mañana
+      }
+      scheduleReminder(reminderTarget.value, target.getTime());
+    });
+
+    document.querySelectorAll(".pill").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mins = Number(btn.dataset.mins);
+        scheduleReminder(reminderTarget.value, Date.now() + mins * 60 * 1000);
+      });
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      items.forEach((i) => (i.checkedAt = null));
+      save();
+      render();
+    });
+
+    document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+      history = [];
+      save();
+      render();
+    });
+
+    // Comprobar recordatorios cada 10s y actualizar tiempos relativos cada 30s
+    setInterval(checkReminders, 10000);
+    setInterval(render, 30000);
+    updateNotifUI();
+    render();
+  </script>
+</body>
+</html>
