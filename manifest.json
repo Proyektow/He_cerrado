@@ -1,11 +1,11 @@
 {
-  "name": "¿Cerré? — Control rápido",
-  "short_name": "¿Cerré?",
-  "description": "Confirma al instante que cerraste la puerta, el coche o sacaste la basura.",
+  "name": "CERRÉ — Control de Verificación",
+  "short_name": "CERRÉ",
+  "description": "Sistema minimalista de confirmación de cierre, rutinas y seguridad doméstica.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0b110e",
-  "theme_color": "#0b110e",
+  "background_color": "#090d0b",
+  "theme_color": "#090d0b",
   "orientation": "portrait",
   "icons": [
     {
@@ -13,6 +13,20 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Salir de casa",
+      "short_name": "Salir",
+      "url": "./index.html?profile=salir",
+      "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Antes de dormir",
+      "short_name": "Noche",
+      "url": "./index.html?profile=noche",
+      "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" }]
     }
   ]
 }
